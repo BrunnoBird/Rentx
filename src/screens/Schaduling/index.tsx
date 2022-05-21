@@ -20,9 +20,15 @@ import {
   Footer,
 } from './styles';
 import { Calendar } from '../../components/Calendar';
+import { useNavigation } from '@react-navigation/native';
 
 export function Schaduling() {
   const theme = useTheme();
+  const navigation = useNavigation();
+
+  function handleConfirmReltal() {
+    navigation.navigate("SchedulingDetails");
+  }
 
   return (
     <Container>
@@ -68,7 +74,7 @@ export function Schaduling() {
       </Content>
 
       <Footer>
-        <Button title="Confirmar" onPress={() => {}}/>
+        <Button title="Confirmar" onPress={handleConfirmReltal}/>
       </Footer>
     </Container>
   );
