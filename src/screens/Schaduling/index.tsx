@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBar } from 'react-native';
 import { useTheme } from 'styled-components';
+import { format } from 'date-fns';
 
 import { BackButton } from '../../components/BackButton';
 import { Button } from '../../components/Button';
 
 import ArrowSvg from '../../assets/arrow.svg';
-
 import {
   Container,
   Header,
@@ -19,10 +19,23 @@ import {
   Content,
   Footer,
 } from './styles';
-import { Calendar } from '../../components/Calendar';
+import { Calendar, generateInterval, MarkedDateProps } from '../../components/Calendar';
+import { DateData } from 'react-native-calendars';
+
 import { useNavigation } from '@react-navigation/native';
+import { getPlatformDate } from '../../utils/getPlatformDate';
+interface RentalPeriod {
+  start: number;
+  startFormatted: string;
+  end: number;
+  endFormatted: string;
+}
 
 export function Schaduling() {
+  const [lastSelectedDate, setLastSelectedDate] = useState<DateData>({} as DateData)
+  const [markedDates, setMarkedDates] = useState<MarkedDateProps>({} as MarkedDateProps)
+  const [rentalPeriod, setRentalPeriod] = useState<RentalPeriod>({} as RentalPeriod)
+
   const theme = useTheme();
   const navigation = useNavigation();
 
@@ -30,16 +43,46 @@ export function Schaduling() {
     navigation.navigate("SchedulingDetails");
   }
 
+  function handleBack() {
+    navigation.goBack();
+  }
+
+  function handleChangeDate(date: DateData) {
+    let start = !lastSelectedDate.timestamp ? date : lastSelectedDate;
+    let end = date;
+
+    if (start.timestamp > end.timestamp) {
+      start = end;
+      end = start;
+    }
+
+    setLastSelectedDate(end);
+
+    const interval = generateInterval(start, end);
+    console.log(interval)
+    setMarkedDates(interval);
+
+    const firstDate = Object.keys(interval)[0];
+    const endDate = Object.keys(interval)[Object.keys(interval).length - 1];
+
+    setRentalPeriod({
+      start: start.timestamp,
+      end: end.timestamp,
+      startFormatted: format(getPlatformDate(new Date(firstDate)), 'dd/MM/yyyy'),
+      endFormatted: format(getPlatformDate(new Date(endDate)), 'dd/MM/yyyy')
+    })
+  }
+
   return (
     <Container>
       <Header>
-        <StatusBar 
+        <StatusBar
           barStyle="light-content"
           translucent
           backgroundColor="transparent"
         />
         <BackButton
-          onPress={() => { }}
+          onPress={handleBack}
           color={theme.colors.shape}
         />
 
@@ -70,11 +113,14 @@ export function Schaduling() {
       </Header>
 
       <Content>
-        <Calendar />
+        <Calendar
+          markedDates={markedDates}
+          onDayPress={handleChangeDate}
+        />
       </Content>
 
       <Footer>
-        <Button title="Confirmar" onPress={handleConfirmReltal}/>
+        <Button title="Confirmar" onPress={handleConfirmReltal} />
       </Footer>
     </Container>
   );

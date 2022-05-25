@@ -1,57 +1,80 @@
 import React from 'react';
 import { Feather } from '@expo/vector-icons';
-
-import { 
-  Calendar as CustomCalendar,
-  LocaleConfig
-} from 'react-native-calendars';
 import { useTheme } from 'styled-components';
 
+import { ptBR } from './localeConfig';
 
-LocaleConfig.locales['pt-br'] = {
-  monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-  monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-  dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
-  dayNamesShort: ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'],
-  today: 'Hoje'
-};
+import {
+  Calendar as CustomCalendar,
+  LocaleConfig,
+  CalendarProps,
+} from 'react-native-calendars';
 
-LocaleConfig.defaultLocale = 'pt-br'
+import { generateInterval } from './generateInterval';
 
-export function Calendar(){
-  const theme = useTheme();
- return (
-    <CustomCalendar 
-      renderArrow={( direction ) => 
-      <Feather 
-        size={24}
-        color={theme.colors.text}
-        name={direction == 'left' ? "chevron-left" : "chevron-right"}
-      />
-    }
+interface MarkedDateProps {
+  [date: string]: {
+    color: string;
+    textColor: string;
+    disabled?: boolean;
+    disableTouchEvent?: boolean;
+  }
+}
 
-    headerStyle={{
-      backgroundColor: theme.colors.background_secondary,
-      borderBottomWidth:0.5,
-      borderBottomColor: theme.colors.text_detail,
-      paddingBottom: 10,
-      marginBottom: 10,
-    }}
+interface DayProps {
+  dateString: string;
+  day: number;
+  month: number;
+  year: number;
+  timestamp: number;
+}
 
-    theme={{
-      textDayFontFamily: theme.fonts.primary_400,
-      textDayHeaderFontFamily: theme.fonts.primary_500,
-      textDayHeaderFontSize: 10,
-      textMonthFontFamily: theme.fonts.secondary_600,
-      textMonthFontSize: 20,
-      monthTextColor: theme.colors.title,
-      arrowStyle: {
-        marginHorizontal: -15
+LocaleConfig.locales['pt-br'] = ptBR;
+LocaleConfig.defaultLocale = 'pt-br';
+
+function Calendar({ markedDates, onDayPress }: CalendarProps) {
+  const { colors, fonts } = useTheme();
+
+  return (
+    <CustomCalendar
+      renderArrow={direction =>
+        <Feather
+          size={24}
+          color={colors.text}
+          name={direction == 'left' ? 'chevron-left' : 'chevron-right'}
+        />
       }
-    }}
+      headerStyle={{
+        backgroundColor: colors.background_secondary,
+        borderBottomWidth: 0.5,
+        borderBottomColor: colors.text_detail,
+        paddingBottom: 10,
+        marginBottom: 10,
+      }}
 
-    firstDay={1}
-    minDate={new Date().toString()}
-  />
-  );
+      theme={{
+        textDayFontFamily: fonts.primary_400,
+        textDayHeaderFontFamily: fonts.primary_500,
+        textDayHeaderFontSize: 10,
+        textMonthFontSize: 20,
+        monthTextColor: colors.title,
+        textMonthFontFamily: fonts.secondary_500,
+        arrowStyle: {
+          marginHorizontal: 15
+        }
+      }}
+      firstDay={1}
+      minDate={new Date().toDateString()}
+      markingType="period"
+      markedDates={markedDates}
+      onDayPress={onDayPress}
+    />
+  )
+}
+
+export {
+  Calendar,
+  MarkedDateProps,
+  DayProps,
+  generateInterval,
 }
