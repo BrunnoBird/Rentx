@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { StatusBar } from 'react-native';
+import { Alert, StatusBar } from 'react-native';
 import { useTheme } from 'styled-components';
 import { format } from 'date-fns';
 
+import { CarDTO } from '../../dtos/CarDTO';
 import { BackButton } from '../../components/BackButton';
 import { Button } from '../../components/Button';
 
@@ -22,13 +23,16 @@ import {
 import { Calendar, generateInterval, MarkedDateProps } from '../../components/Calendar';
 import { DateData } from 'react-native-calendars';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { getPlatformDate } from '../../utils/getPlatformDate';
 interface RentalPeriod {
   start: number;
   startFormatted: string;
   end: number;
   endFormatted: string;
+}
+interface Params {
+  car: CarDTO
 }
 
 export function Schaduling() {
@@ -38,9 +42,18 @@ export function Schaduling() {
 
   const theme = useTheme();
   const navigation = useNavigation();
+  const route = useRoute();
+  const { car } = route.params as Params;
 
   function handleConfirmReltal() {
-    navigation.navigate("SchedulingDetails");
+    if(!rentalPeriod.start || !rentalPeriod.end) {
+      Alert.alert("Selecione o intervalo para alugar");
+    } else {
+      navigation.navigate("SchedulingDetails", {
+        car,
+        dates: Object.keys(markedDates),
+      });
+    }
   }
 
   function handleBack() {
@@ -59,7 +72,6 @@ export function Schaduling() {
     setLastSelectedDate(end);
 
     const interval = generateInterval(start, end);
-    console.log(interval)
     setMarkedDates(interval);
 
     const firstDate = Object.keys(interval)[0];
@@ -95,8 +107,8 @@ export function Schaduling() {
         <RentalPeriod>
           <DateInfo>
             <DateTitle>DE</DateTitle>
-            <DateValueContainer selected={false}>
-              <DateValue>11/05/2022</DateValue>
+            <DateValueContainer selected={!rentalPeriod.startFormatted}>
+              <DateValue>{rentalPeriod.startFormatted}</DateValue>
             </DateValueContainer>
           </DateInfo>
 
@@ -104,8 +116,8 @@ export function Schaduling() {
 
           <DateInfo>
             <DateTitle>ATÉ</DateTitle>
-            <DateValueContainer selected={false}>
-              <DateValue>20/05/2022</DateValue>
+            <DateValueContainer selected={!rentalPeriod.endFormatted}>
+              <DateValue>{rentalPeriod.endFormatted}</DateValue>
             </DateValueContainer>
           </DateInfo>
         </RentalPeriod>

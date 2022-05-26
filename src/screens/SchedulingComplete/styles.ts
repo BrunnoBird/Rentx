@@ -13,7 +13,7 @@ export const Content = styled.View`
   justify-content: center;
   align-items: center;
 
-  padding-bottom: 80px;
+  padding-bottom: 200px;
 `;
 
 export const Title = styled.Text`
@@ -37,5 +37,5 @@ export const Message = styled.Text`
 export const  Footer = styled.View`
   width: 100%;
   align-items: center;
-  margin: 16px 0;
+  margin: 36px 0;
 `;
